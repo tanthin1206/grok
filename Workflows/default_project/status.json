@@ -1,0 +1,73 @@
+{
+  "project_name": "default_project",
+  "updated_at": 1773821940,
+  "rows": [
+    {
+      "row": 0,
+      "stt": "001",
+      "prompt_id": "1",
+      "prompt": "cat",
+      "mode_key": "grok_text_to_video",
+      "mode_label": "GROK - Tạo video từ văn bản",
+      "mode_name": "GROK - Tạo video từ văn bản",
+      "mode_payload": {
+        "prompt": "cat"
+      },
+      "status_code": "SUCCESSFUL",
+      "status_text": "Hoàn thành",
+      "output_count": 1,
+      "selected_output_index": 1,
+      "media_map": {
+        "1": "D:\\veo 3\\downloads\\grok_video\\001_cat_20260312_143100_812937.mp4"
+      },
+      "preview_map": {
+        "1": "D:\\veo 3\\downloads\\grok_thumnail\\001_cat_20260312_143100_812937.thumb.jpg"
+      }
+    },
+    {
+      "row": 1,
+      "stt": "002",
+      "prompt_id": "2",
+      "prompt": "con chó đá con mèo",
+      "mode_key": "grok_text_to_video",
+      "mode_label": "GROK - Tạo video từ văn bản",
+      "mode_name": "GROK - Tạo video từ văn bản",
+      "mode_payload": {
+        "prompt": "con chó đá con mèo"
+      },
+      "status_code": "SUCCESSFUL",
+      "status_text": "Hoàn thành",
+      "output_count": 1,
+      "selected_output_index": 1,
+      "media_map": {
+        "1": "D:\\veo 3\\downloads\\grok_video\\001_con_ch_con_m_o_20260318_151812_202603.mp4"
+      },
+      "preview_map": {
+        "1": "D:\\veo 3\\downloads\\grok_thumnail\\001_con_ch_con_m_o_20260318_151812_202603.thumb.jpg"
+      }
+    },
+    {
+      "row": 2,
+      "stt": "003",
+      "prompt_id": "3",
+      "prompt": "Hi",
+      "mode_key": "grok_image_to_video",
+      "mode_label": "GROK - Tạo video từ Ảnh",
+      "mode_name": "GROK - Tạo video từ Ảnh",
+      "mode_payload": {
+        "image_link": "C:/Users/Admin/Downloads/Ảnh chụp màn hình 2026-03-05 113656.png",
+        "prompt": "Hi"
+      },
+      "status_code": "SUCCESSFUL",
+      "status_text": "Hoàn thành",
+      "output_count": 1,
+      "selected_output_index": 1,
+      "media_map": {
+        "1": "D:\\veo 3\\downloads\\grok_video\\001_A_nh_chu_p_ma_n_hi_nh_2026-03-_Hi_20260318_151858_468660.mp4"
+      },
+      "preview_map": {
+        "1": "D:\\veo 3\\downloads\\grok_thumnail\\001_A_nh_chu_p_ma_n_hi_nh_2026-03-_Hi_20260318_151858_468660.thumb.jpg"
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+# Git ignore patterns for Grok project
+
+# Build outputs
+build/
+dist/
+*.pyz
+*.exe
+*.spec
+
+# Python cache
+__pycache__/
+*.pyc
+
+# User data and logs
+chrome_user_data/
+chrome_user_data_grok/
+data_general/
+downloads/
+
+# Large files and archives
+*.rar
+*.zip
+*.7z
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.ts
+*.webm
+
+# Credentials/Private data
+.env
+auth.json
+token.json
+login_info.json

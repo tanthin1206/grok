@@ -1,0 +1,4 @@
+PyQt6>=6.7
+playwright>=1.52
+requests>=2.31
+imageio-ffmpeg>=0.6
