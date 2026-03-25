@@ -84,6 +84,67 @@ def _build_assets_hd_url(media_url: str | None, parent_post_id: str | None) -> s
   return None
 
 
+def _extract_generated_parts(media_url: str | None, parent_post_id: str | None) -> tuple[str, str]:
+  raw = (media_url or "").strip()
+  if not raw:
+    return "", ""
+
+  m = re.search(r"/users/([^/]+)/generated/([^/]+)/", raw)
+  if m:
+    return m.group(1).strip(), m.group(2).strip()
+
+  parsed = urlparse(raw)
+  path_parts = [p for p in parsed.path.split("/") if p]
+  if len(path_parts) >= 4 and path_parts[0] == "users" and path_parts[2] == "generated":
+    user_id = str(path_parts[1] or "").strip()
+    video_id = str((parent_post_id or "").strip() or path_parts[3] or "").strip()
+    return user_id, video_id
+
+  return "", ""
+
+
+def _build_download_candidates(
+  media_url: str | None,
+  parent_post_id: str | None,
+  upscale_url: str | None,
+  *,
+  is_720p: bool,
+) -> list[str]:
+  candidates: list[str] = []
+
+  def add(url: str | None) -> None:
+    text = str(url or "").strip()
+    if text:
+      candidates.append(text)
+
+  if str(upscale_url or "").strip():
+    add(upscale_url)
+
+  assets_hd = _build_assets_hd_url(media_url, parent_post_id)
+  if is_720p and assets_hd:
+    add(assets_hd)
+
+  add(media_url)
+
+  parent_id = str(parent_post_id or "").strip()
+  if parent_id:
+    add(f"https://imagine-public.x.ai/imagine-public/share-videos/{parent_id}.mp4?cache=1&dl=1")
+
+  user_id, generated_id = _extract_generated_parts(media_url, parent_post_id)
+  if user_id and generated_id:
+    add(f"https://assets.grok.com/users/{user_id}/generated/{generated_id}/generated_video_hd.mp4")
+    add(f"https://assets.grok.com/users/{user_id}/generated/{generated_id}/generated_video.mp4?cache=1&dl=1")
+
+  deduped: list[str] = []
+  seen: set[str] = set()
+  for url in candidates:
+    if url in seen:
+      continue
+    seen.add(url)
+    deduped.append(url)
+  return deduped
+
+
 def _log_step(title: str) -> None:
   print(f"\n===== {title} =====")
 
@@ -725,36 +786,34 @@ async def _run_jobs_async_ui(
         is_720p = str(getattr(cfg, "resolution_name", "") or "").strip().lower() == "720p"
         _safe_call(on_info, f"[GROK-T2V {idx+1}] nhận kết quả | convoStatus={int(job.get('convoStatus') or 0)}")
 
-        source_url = None
-        if is_720p:
-          assets_hd = _build_assets_hd_url(str(media_url or ""), str(parent_id or ""))
-          if assets_hd:
-            source_url = assets_hd
-            _safe_call(on_status, idx, "Tải 720HD")
+        candidate_urls = _build_download_candidates(
+          str(media_url or ""),
+          str(parent_id or ""),
+          str(upscale_url or "") if used_upscale else "",
+          is_720p=is_720p,
+        )
 
-        if source_url is None and isinstance(parent_id, str) and parent_id.strip():
-          source_url = (
-            f"https://imagine-public.x.ai/imagine-public/share-videos/"
-            f"{parent_id.strip()}.mp4?cache=1&dl=1"
-          )
-          _safe_call(on_status, idx, "Tải video")
-
-        if used_upscale and isinstance(upscale_url, str) and upscale_url.strip():
-          source_url = upscale_url.strip()
-          _safe_call(on_status, idx, "Tải HD")
-
-        if isinstance(source_url, str) and source_url.strip():
+        if candidate_urls:
           if _stop_requested():
             _safe_call(on_status, idx, "Stop")
             return
           filename = _build_unique_video_name(idx + 1, prompt)
           out_path = DOWNLOAD_DIR / filename
+          _safe_call(on_status, idx, "Tải HD" if used_upscale else ("Tải 720HD" if is_720p else "Tải video"))
           _safe_call(on_info, f"[GROK-T2V {idx+1}] tải video: {out_path.name}")
-          ok = await _await_with_stop(
-            download_mp4(context, source_url.strip(), out_path, timeout_ms=DOWNLOAD_TIMEOUT_MS),
-            step_name="tải video",
-            idx=idx,
-          )
+          ok = False
+          for attempt, candidate_url in enumerate(candidate_urls, start=1):
+            if _stop_requested():
+              _safe_call(on_status, idx, "Stop")
+              return
+            _safe_call(on_info, f"[GROK-T2V {idx+1}] thử URL tải #{attempt}: {candidate_url}")
+            ok = await _await_with_stop(
+              download_mp4(context, candidate_url, out_path, timeout_ms=DOWNLOAD_TIMEOUT_MS),
+              step_name="tải video",
+              idx=idx,
+            )
+            if ok:
+              break
           if _stop_requested():
             _safe_call(on_status, idx, "Stop")
             return
@@ -771,11 +830,22 @@ async def _run_jobs_async_ui(
               if isinstance(fresh_hd, str) and fresh_hd.strip():
                 retried = True
                 _safe_call(on_status, idx, "Tải lại HD")
-                ok2 = await _await_with_stop(
-                  download_mp4(context, fresh_hd.strip(), out_path, timeout_ms=DOWNLOAD_TIMEOUT_MS),
-                  step_name="tải lại HD",
-                  idx=idx,
+                retry_urls = _build_download_candidates(
+                  str(media_url or ""),
+                  str(parent_id or ""),
+                  fresh_hd.strip(),
+                  is_720p=is_720p,
                 )
+                ok2 = False
+                for retry_attempt, retry_url in enumerate(retry_urls, start=1):
+                  _safe_call(on_info, f"[GROK-T2V {idx+1}] thử lại URL #{retry_attempt}: {retry_url}")
+                  ok2 = await _await_with_stop(
+                    download_mp4(context, retry_url, out_path, timeout_ms=DOWNLOAD_TIMEOUT_MS),
+                    step_name="tải lại HD",
+                    idx=idx,
+                  )
+                  if ok2:
+                    break
                 if ok2:
                   _safe_call(on_video, idx, str(out_path))
                   _safe_call(on_status, idx, "Hoàn thành")

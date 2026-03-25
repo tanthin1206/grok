@@ -1,6 +1,6 @@
 {
   "project_name": "default_project",
-  "updated_at": 1773821940,
+  "updated_at": 1774420864,
   "rows": [
     {
       "row": 0,
@@ -67,6 +67,50 @@
       },
       "preview_map": {
         "1": "D:\\veo 3\\downloads\\grok_thumnail\\001_A_nh_chu_p_ma_n_hi_nh_2026-03-_Hi_20260318_151858_468660.thumb.jpg"
+      }
+    },
+    {
+      "row": 3,
+      "stt": "004",
+      "prompt_id": "4",
+      "prompt": "con cá",
+      "mode_key": "grok_text_to_video",
+      "mode_label": "GROK - Tạo video từ văn bản",
+      "mode_name": "GROK - Tạo video từ văn bản",
+      "mode_payload": {
+        "prompt": "con cá"
+      },
+      "status_code": "SUCCESSFUL",
+      "status_text": "Hoàn thành",
+      "output_count": 1,
+      "selected_output_index": 1,
+      "media_map": {
+        "1": "D:\\veo 3\\downloads\\grok_video\\001_con_c_20260325_130327_453806.mp4"
+      },
+      "preview_map": {
+        "1": "D:\\veo 3\\downloads\\grok_thumnail\\001_con_c_20260325_130327_453806.thumb.jpg"
+      }
+    },
+    {
+      "row": 4,
+      "stt": "005",
+      "prompt_id": "5",
+      "prompt": "con chim",
+      "mode_key": "grok_text_to_video",
+      "mode_label": "GROK - Tạo video từ văn bản",
+      "mode_name": "GROK - Tạo video từ văn bản",
+      "mode_payload": {
+        "prompt": "con chim"
+      },
+      "status_code": "SUCCESSFUL",
+      "status_text": "Hoàn thành",
+      "output_count": 1,
+      "selected_output_index": 1,
+      "media_map": {
+        "1": "D:\\veo 3\\downloads\\grok_video\\001_con_chim_20260325_134101_221270.mp4"
+      },
+      "preview_map": {
+        "1": "D:\\veo 3\\downloads\\grok_thumnail\\001_con_chim_20260325_134101_221270.thumb.jpg"
       }
     }
   ]
